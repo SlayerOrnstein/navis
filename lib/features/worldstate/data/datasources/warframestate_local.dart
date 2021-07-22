@@ -1,33 +1,33 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:wfcd_client/entities.dart';
 import 'package:wfcd_client/models.dart';
 import 'package:wfcd_client/wfcd_client.dart';
 
 class WarframestatCache {
-  const WarframestatCache(this._box);
+  const WarframestatCache._(this._box);
 
   final Box<dynamic> _box;
 
   static WarframestatCache? _instance;
 
-  static final _logger = Logger('WarframestatCache');
-
   static Future<WarframestatCache> initCache() async {
-    _logger.info('Initializing WarframestatCache Hive');
-    final temp = await getTemporaryDirectory();
-    Hive.init(temp.path);
-
+    log('Initializing WarframestatCache Hive');
     final box = await Hive.openBox<dynamic>('worldstate_cache').catchError(
       (Object error, StackTrace stack) {
-        _logger.severe('Unable to open Hive box', error, stack);
+        log(
+          'Unable to open Hive box',
+          error: error,
+          stackTrace: stack,
+          level: Level.SEVERE.value,
+        );
       },
     );
 
-    return _instance ??= WarframestatCache(box);
+    return _instance ??= WarframestatCache._(box);
   }
 
   static const String _dealId = 'dealId';

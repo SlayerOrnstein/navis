@@ -71,7 +71,7 @@ class BasicItemInfo extends SliverPersistentHeaderDelegate {
   double get maxExtent => expandedHeight;
 
   @override
-  double get minExtent => (kToolbarHeight * 2) + 30;
+  double get minExtent => (kToolbarHeight + kTextTabBarHeight);
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
@@ -106,8 +106,8 @@ class _EntryInfoContent extends StatelessWidget {
       opacity: 1 - (shrinkOffset / height),
       child: AnimatedContainer(
         duration: kThemeAnimationDuration,
-        width: MediaQuery.of(context).size.width,
-        height: shrinkOffset > 0.0 ? 0 : 106,
+        width: (MediaQuery.of(context).size.width / 100) * 95,
+        height: shrinkOffset > 0.0 ? 0 : (height / 100) * 90,
         child: FittedBox(
           clipBehavior: Clip.hardEdge,
           child: Column(

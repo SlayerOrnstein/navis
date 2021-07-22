@@ -20,6 +20,13 @@ flutter_*.mp4
 *.iws
 .idea/
 
+# Gradle
+.gradle/
+gradle/
+gradlew
+gradlew.bat
+local.properties
+
 # Visual Studio Code related
 .vscode/
 

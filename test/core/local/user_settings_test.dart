@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/navis_localizations_en.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive/hive.dart';
 import 'package:navis/core/local/user_settings.dart';
 import 'package:navis/core/utils/notification_filter.dart';
 import 'package:navis/l10n/l10n.dart';
@@ -14,7 +15,8 @@ Future<void> main() async {
   late Usersettings settings;
 
   setUpAll(() async {
-    settings = await Usersettings.initUsersettings(temp);
+    Hive.init(temp.path);
+    settings = await Usersettings.initUsersettings();
   });
 
   tearDownAll(() async {

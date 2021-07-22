@@ -378,6 +378,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  market_client:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "v1.0.0"
+      resolved-ref: "6d10799055b3fc1ebbf626027bc21b89e159545b"
+      url: "https://github.com/SlayerOrnstein/market_client.git"
+    source: git
+    version: "1.0.0"
   matcher:
     dependency: transitive
     description:

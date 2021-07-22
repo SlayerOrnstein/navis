@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:package_info/package_info.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:wfcd_client/wfcd_client.dart';
 
 import 'core/cubits/navigation_cubit.dart';
@@ -9,9 +11,14 @@ import 'core/network/network_info.dart';
 import 'core/notifiers/user_settings_notifier.dart';
 import 'core/services/notifications.dart';
 import 'core/services/videos.dart';
+import 'features/codex/data/datasources/market_cache.dart';
 import 'features/codex/data/repositories/codex_repository_impl.dart';
+import 'features/codex/data/repositories/market_repository_impl.dart';
 import 'features/codex/domian/repositories/codex_repository.dart';
+import 'features/codex/domian/repositories/market_repository.dart';
+import 'features/codex/domian/usercases/get_orders.dart';
 import 'features/codex/domian/usercases/search_items.dart';
+import 'features/codex/presentation/bloc/market_bloc.dart';
 import 'features/codex/presentation/bloc/search_bloc.dart';
 import 'features/synthtargets/data/repositories/synth_target_rep_impl.dart';
 import 'features/synthtargets/domain/repositories/synth_target_repository.dart';
@@ -31,6 +38,11 @@ final GetIt sl = GetIt.instance;
 bool _isDebug = false;
 
 Future<void> init() async {
+  final temp = await getTemporaryDirectory();
+  final appDir = await getApplicationDocumentsDirectory();
+
+  Hive..init(appDir.path)..init(temp.path);
+
   assert(_isDebug = true);
   // Core
   sl
@@ -43,12 +55,14 @@ Future<void> init() async {
         _isDebug ? NotificationServiceDebug() : NotificationServiceRelease())
 
     // Data sources
-    ..registerSingleton<WarframestatClient>(WarframestatClient())
     ..registerSingletonAsync(Usersettings.initUsersettings)
-    ..registerSingletonAsync<WarframestatCache>(WarframestatCache.initCache);
+    ..registerSingleton<WarframestatClient>(WarframestatClient())
+    ..registerSingletonAsync<WarframestatCache>(WarframestatCache.initCache)
+    ..registerSingletonAsync(MarketCache.initCache);
 
-  await sl.isReady<WarframestatCache>();
   await sl.isReady<Usersettings>();
+  await sl.isReady<WarframestatCache>();
+  await sl.isReady<MarketCache>();
 
   // Repository
   sl
@@ -64,6 +78,8 @@ Future<void> init() async {
     )
     ..registerSingleton<SynthRepository>(SynthRepositoryImpl(sl<NetworkInfo>()))
     ..registerSingleton<CodexRepository>(CodexRepositoryImpl(sl<NetworkInfo>()))
+    ..registerSingleton<MarketRepository>(MarketRepositoryImpl(
+        sl<NetworkInfo>(), sl<Usersettings>(), sl<MarketCache>()))
 
     // Usecases
     ..registerSingleton<GetWorldstate>(
@@ -72,6 +88,7 @@ Future<void> init() async {
         GetDarvoDealInfo(sl<WorldstateRepository>()))
     ..registerSingleton<GetSynthTargets>(GetSynthTargets(sl<SynthRepository>()))
     ..registerSingleton<SearchItems>(SearchItems(sl<CodexRepository>()))
+    ..registerSingleton<GetOrders>(GetOrders(sl<MarketRepository>()))
 
     // Blocs
     ..registerFactory<NavigationCubit>(() => NavigationCubit())
@@ -82,5 +99,6 @@ Future<void> init() async {
       return DarvodealBloc(getDarvoDealInfo: sl<GetDarvoDealInfo>());
     })
     ..registerFactory(() => SynthtargetsBloc(sl<GetSynthTargets>()))
-    ..registerFactory<SearchBloc>(() => SearchBloc(sl<SearchItems>()));
+    ..registerFactory<SearchBloc>(() => SearchBloc(sl<SearchItems>()))
+    ..registerFactory(() => MarketBloc(sl<GetOrders>()));
 }

@@ -1,11 +1,9 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 import 'package:matomo/matomo.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:wfcd_client/wfcd_client.dart';
 
 import '../../constants/storage_keys.dart';
@@ -17,13 +15,8 @@ class Usersettings {
 
   static Usersettings? _instance;
 
-  static Future<Usersettings> initUsersettings([Directory? directory]) async {
+  static Future<Usersettings> initUsersettings() async {
     log('Initializing Usersettings Hive', level: Level.INFO.value);
-
-    Hive.init(
-      directory?.path ?? (await getApplicationDocumentsDirectory()).path,
-    );
-
     final box = await Hive.openBox<dynamic>('user_settings');
 
     return _instance ??= Usersettings._(box);

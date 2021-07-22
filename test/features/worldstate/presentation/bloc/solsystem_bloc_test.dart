@@ -25,7 +25,7 @@ void main() {
 
   setUpAll(() async {
     HydratedBloc.storage = await HydratedStorage.build(
-      storageDirectory: Directory.systemTemp,
+      storageDirectory: await Directory.systemTemp.createTemp(),
     );
 
     getWorldstate = MockGetWorldstate();
